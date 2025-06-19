@@ -1,52 +1,55 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
-import axios from 'axios'
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import axios from "axios";
 
 interface Props {
-  userEmail: string | null
-  onSelect: (name: string) => void // callback to prefill or create with selected name
+  userEmail: string | null;
+  onSelect: (name: string) => void; // callback to prefill or create with selected name
 }
 
-export default function SuggestedIntegrationNames({ userEmail, onSelect }: Props) {
-  const [suggestions, setSuggestions] = useState<string[]>([])
-  const [loading, setLoading] = useState(false)
+export default function SuggestedIntegrationNames({
+  userEmail,
+  onSelect,
+}: Props) {
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (!userEmail) return
-      setLoading(true)
+      if (!userEmail) return;
+      setLoading(true);
 
       // Get last 3 integration names by this user
       const { data, error } = await supabase
-        .from('integrations')
-        .select('name')
-        .eq('author', userEmail)
-        .order('created_at', { ascending: false })
-        .limit(3)
+        .from("integrations")
+        .select("name")
+        .eq("author", userEmail)
+        .order("created_at", { ascending: false })
+        .limit(3);
 
       if (error) {
-        console.error('Supabase fetch error:', error)
-        return
+        console.error("Supabase fetch error:", error);
+        return;
       }
 
-      const recentNames = data?.map((i) => i.name)
+      const recentNames = data?.map((i) => i.name);
 
       try {
-        const res = await axios.post('/api/suggest-names', { recentNames })
-        setSuggestions(res.data.suggestions || [])
+        const res = await axios.post("/api/suggest-names", { recentNames });
+        setSuggestions(res.data.suggestions || []);
       } catch (err) {
-        console.error('Error fetching suggestions:', err)
+        console.error("Error fetching suggestions:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchSuggestions()
-  }, [userEmail])
+    fetchSuggestions();
+  }, [userEmail]);
 
-  if (!suggestions.length && !loading) return null
+  if (!suggestions.length && !loading) return null;
 
   return (
     <div className="mt-8">
@@ -68,5 +71,5 @@ export default function SuggestedIntegrationNames({ userEmail, onSelect }: Props
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-"use client"
-import React from "react"
+"use client";
+import React from "react";
 
 interface Props {
-  onGenerate: () => void
-  onSave: () => void
-  loading: boolean
-  canSave: boolean
+  onGenerate: () => void;
+  onSave: () => void;
+  loading: boolean;
+  canSave: boolean;
 }
 
 export default function GenerateControls({
@@ -16,12 +16,20 @@ export default function GenerateControls({
 }: Props) {
   return (
     <div className="flex gap-3 mb-6">
-      <button className="btn btn-secondary" onClick={onGenerate} disabled={loading}>
+      <button
+        className="btn btn-secondary"
+        onClick={onGenerate}
+        disabled={loading}
+      >
         {loading ? "Generating..." : "Generate with AI"}
       </button>
-      <button className="btn btn-primary" onClick={onSave} disabled={!canSave || loading}>
+      <button
+        className="btn btn-primary"
+        onClick={onSave}
+        disabled={!canSave || loading}
+      >
         Save Integration
       </button>
     </div>
-  )
+  );
 }

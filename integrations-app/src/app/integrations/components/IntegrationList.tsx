@@ -1,47 +1,52 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import EditIntegrationModal from './EditIntegraionModal'
-import DeleteConfirmationModal from './DeleteConfirmationModal'
-import IntegrationDetailsModal from './IntegrationDetailsModal'
-import { supabase } from '@/lib/supabaseClient'
-import { Integration } from '@/types'
+import { useState } from "react";
+import EditIntegrationModal from "./EditIntegraionModal";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import IntegrationDetailsModal from "./IntegrationDetailsModal";
+import { supabase } from "@/lib/supabaseClient";
+import { Integration } from "@/types";
 
 interface Props {
-  integrations: Integration[]
-  setIntegrations: React.Dispatch<React.SetStateAction<any[]>>
+  integrations: Integration[];
+  setIntegrations: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-export default function IntegrationTable({ integrations, setIntegrations }: Props) {
-  const [selectedIntegration, setSelectedIntegration] = useState<any | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<any | null>(null)
-  const [viewTarget, setViewTarget] = useState<any | null>(null) //  for viewing details
-  const [deleting, setDeleting] = useState(false)
+export default function IntegrationTable({
+  integrations,
+  setIntegrations,
+}: Props) {
+  const [selectedIntegration, setSelectedIntegration] = useState<any | null>(
+    null
+  );
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+  const [viewTarget, setViewTarget] = useState<any | null>(null); //  for viewing details
+  const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!deleteTarget) return
-    setDeleting(true)
+    if (!deleteTarget) return;
+    setDeleting(true);
 
     const { error } = await supabase
-      .from('integrations')
+      .from("integrations")
       .delete()
-      .eq('id', deleteTarget.id)
+      .eq("id", deleteTarget.id);
 
     if (!error) {
-      setIntegrations((prev) => prev.filter((i) => i.id !== deleteTarget.id))
+      setIntegrations((prev) => prev.filter((i) => i.id !== deleteTarget.id));
     } else {
-      console.error('Failed to delete:', error.message)
+      console.error("Failed to delete:", error.message);
     }
 
-    setDeleting(false)
-    setDeleteTarget(null)
-  }
+    setDeleting(false);
+    setDeleteTarget(null);
+  };
 
   return (
     <>
       <div className="overflow-x-auto mt-6">
         <table className="table table-zebra w-full">
-          <thead>
+          <thead className="bg-base-300">
             <tr>
               <th>Name</th>
               <th>Type</th>
@@ -56,12 +61,13 @@ export default function IntegrationTable({ integrations, setIntegrations }: Prop
                 className="cursor-pointer hover:bg-slate-200 transition"
                 onClick={(e) => {
                   // Don't trigger modal if Edit/Delete buttons were clicked
-                  const target = e.target as HTMLElement
+                  const target = e.target as HTMLElement;
                   if (
-                    target.closest('button') // check if click is inside a button
-                  ) return
+                    target.closest("button") // check if click is inside a button
+                  )
+                    return;
 
-                  setViewTarget(i) // open the view modal
+                  setViewTarget(i); // open the view modal
                 }}
               >
                 <td>{i.name}</td>
@@ -89,15 +95,15 @@ export default function IntegrationTable({ integrations, setIntegrations }: Prop
 
       {/* Edit Modal */}
       {selectedIntegration && (
-       <EditIntegrationModal
-       integration={selectedIntegration}
-       onClose={() => setSelectedIntegration(null)}
-       onSave={(updated) => {
-         setIntegrations((prev) =>
-           prev.map((i) => (i.id === updated.id ? updated : i))
-         )
-       }}
-     />
+        <EditIntegrationModal
+          integration={selectedIntegration}
+          onClose={() => setSelectedIntegration(null)}
+          onSave={(updated) => {
+            setIntegrations((prev) =>
+              prev.map((i) => (i.id === updated.id ? updated : i))
+            );
+          }}
+        />
       )}
 
       {/* Delete Modal */}
@@ -118,5 +124,5 @@ export default function IntegrationTable({ integrations, setIntegrations }: Prop
         />
       )}
     </>
-  )
+  );
 }

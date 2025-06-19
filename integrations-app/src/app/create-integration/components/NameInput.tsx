@@ -1,9 +1,9 @@
-"use client"
-import React from "react"
+"use client";
+import React from "react";
 
 interface Props {
-  name: string
-  setName: (value: string) => void
+  name: string;
+  setName: (value: string) => void;
 }
 
 export default function NameInput({ name, setName }: Props) {
@@ -16,5 +16,5 @@ export default function NameInput({ name, setName }: Props) {
         onChange={(e) => setName(e.target.value)}
       />
     </div>
-  )
+  );
 }

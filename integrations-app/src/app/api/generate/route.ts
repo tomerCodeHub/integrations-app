@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server"
-import axios from "axios"
+import { NextResponse } from "next/server";
+import axios from "axios";
 
 export async function POST(req: Request) {
   try {
-    const { name } = await req.json()
+    const { name } = await req.json();
 
     if (!name) {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 })
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    console.log("Generating metadata for:", name)
+    console.log("Generating metadata for:", name);
 
-    // ✅ Define the prompt here
+    //  Define the prompt here
     const prompt = `
 Generate integration metadata for the service "${name}". Please return the following fields, each enclosed in their respective tags exactly as shown:
 
@@ -40,9 +40,9 @@ How easy is it to implement and use this integration in large teams? Short sente
 [POPULARITY]
 Is this integration widely adopted or niche? Short sentence.
 [/POPULARITY]
-`
+`;
 
-    // ✅ Call OpenAI
+    //  Call OpenAI
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -60,14 +60,17 @@ Is this integration widely adopted or niche? Short sentence.
           "Content-Type": "application/json",
         },
       }
-    )
+    );
 
-    const output = response.data.choices?.[0]?.message?.content
+    const output = response.data.choices?.[0]?.message?.content;
 
-    return NextResponse.json({ result: output })
+    return NextResponse.json({ result: output });
   } catch (error: any) {
-    console.error("OpenAI error:", error.response?.data || error.message)
-    return NextResponse.json({ error: "OpenAI request failed" }, { status: 500 })
+    console.error("OpenAI error:", error.response?.data || error.message);
+    return NextResponse.json(
+      { error: "OpenAI request failed" },
+      { status: 500 }
+    );
   }
 }
-``
+``;

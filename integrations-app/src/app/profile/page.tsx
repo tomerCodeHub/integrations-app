@@ -1,70 +1,73 @@
 // src/app/profile/page.tsx
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
-import SidebarLayout from '../components/SidebarLayout'
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import SidebarLayout from "../components/SidebarLayout";
 
 export default function ProfilePage() {
-  const [email, setEmail] = useState<string | null>(null)
-  const [username, setUsername] = useState<string>('')
-  const [createdAt, setCreatedAt] = useState<string | null>(null)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const [email, setEmail] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>("");
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   //  Fetch profile info after login
   useEffect(() => {
     const fetchProfile = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const user = sessionData?.session?.user;
-  
+
       if (!user) return;
-  
+
       setEmail(user.email || null);
       setCreatedAt(user.created_at);
-  
+
       try {
         const { data, error } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("username")
+          .eq("id", user.id)
           .single();
-  
+
         if (error) throw error;
-  
-        setUsername(data?.username || '');
+
+        setUsername(data?.username || "");
       } catch (error: any) {
         // Delay logging to avoid flashing error on first load
-        console.warn('Non-critical profile fetch delay:', error.message || error);
+        console.warn(
+          "Non-critical profile fetch delay:",
+          error.message || error
+        );
       }
     };
-  
+
     fetchProfile();
   }, []);
 
   //  Save updated username
   const handleUpdate = async () => {
-    setMessage('')
-    setError('')
+    setMessage("");
+    setError("");
 
-    const { data: sessionData } = await supabase.auth.getSession()
-    const user = sessionData?.session?.user
+    const { data: sessionData } = await supabase.auth.getSession();
+    const user = sessionData?.session?.user;
 
     if (!user) {
-      setError('User not found.')
-      return
+      setError("User not found.");
+      return;
     }
 
     const { error } = await supabase
-      .from('profiles')
-      .upsert({ id: user.id, username })
+      .from("profiles")
+      .upsert({ id: user.id, username });
 
     if (error) {
-      setError('Update failed: ' + error.message)
+      setError("Update failed: " + error.message);
     } else {
-      setMessage('Username updated successfully!')
+      setMessage("Username updated successfully!");
     }
-  }
+  };
 
   return (
     <SidebarLayout>
@@ -79,7 +82,7 @@ export default function ProfilePage() {
           <input
             className="input input-bordered"
             type="text"
-            value={email || ''}
+            value={email || ""}
             disabled
           />
         </div>
@@ -99,7 +102,7 @@ export default function ProfilePage() {
           <input
             className="input input-bordered"
             type="text"
-            value={createdAt ? new Date(createdAt).toLocaleString() : ''}
+            value={createdAt ? new Date(createdAt).toLocaleString() : ""}
             disabled
           />
         </div>
@@ -109,5 +112,5 @@ export default function ProfilePage() {
         </button>
       </div>
     </SidebarLayout>
-  )
+  );
 }

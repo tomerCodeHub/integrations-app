@@ -32,42 +32,42 @@ export default function IntegrationListPage() {
     const fetchUserIntegrations = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const user = sessionData?.session?.user;
-  
+
       if (!user) {
         router.push("/login");
         return;
       }
-  
+
       // Fetch user's username from `profiles` table
       const { data: profileData } = await supabase
         .from("profiles")
         .select("username")
         .eq("id", user.id)
         .single();
-  
+
       // Use username if available, else fallback to email
       const author = profileData?.username ?? user.email;
       setUserEmail(author); // Save author identifier for filters
-  
+
       // Fetch integrations by this author
+      // Fetch integrations by author (username OR fallback email)
       const { data, error } = await supabase
         .from("integrations")
         .select("*")
-        .eq("author", author)
+        .or(`author.eq.${author},author.eq.${user.email}`)
         .order("created_at", { ascending: false });
-  
+
       if (error) {
         setError(error.message);
       } else {
         setIntegrations(data || []);
       }
-  
+
       setLoading(false);
     };
-  
+
     fetchUserIntegrations();
   }, [router]);
-  
 
   // While loading, show feedback
   if (loading) return <div className="p-6">Loading integrations...</div>;
@@ -78,26 +78,26 @@ export default function IntegrationListPage() {
   return (
     <SidebarLayout>
       <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">Your Integrations</h1>
+        <h1 className="text-3xl font-bold mb-4">Your Integrations</h1>
 
-      {/* Filters component */}
-      <SearchFilters
-        integrations={integrations}
-        onFilter={(filtered) => setIntegrations(filtered)} // update filtered list
-        userEmail={userEmail}
-      />
-      <button
-        className="btn bg-cyan-600 text-black hover:bg-cyan-700 text-white"
-        onClick={() => router.push("/create-integration")}
-      >
-        + New Integration
-      </button>
-      {/* Table component to render integrations */}
-      <IntegrationTable
-        integrations={integrations}
-        setIntegrations={setIntegrations}
-      />
-    </div>
+        {/* Filters component */}
+        <SearchFilters
+          integrations={integrations}
+          onFilter={(filtered) => setIntegrations(filtered)} // update filtered list
+          userEmail={userEmail}
+        />
+        <button
+          className="btn bg-cyan-600 text-black hover:bg-cyan-700 text-white"
+          onClick={() => router.push("/create-integration")}
+        >
+          + New Integration
+        </button>
+        {/* Table component to render integrations */}
+        <IntegrationTable
+          integrations={integrations}
+          setIntegrations={setIntegrations}
+        />
+      </div>
     </SidebarLayout>
   );
 }
